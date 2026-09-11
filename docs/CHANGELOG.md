@@ -24,7 +24,9 @@ Judicator's Rulebook, Rune Decanter) are now reported as informational
 errors. Their default action is No action; Remove record stays available for
 a deliberate clean-up. The zero-quantity key-item rows the mod uses to store
 some of its items are no longer flagged as `quantity_zero`, so a "repair all
-defaults" pass can no longer strip the mod's items by accident.
+defaults" pass can no longer strip the mod's items by accident. The Inventory
+Issues modal no longer opens automatically on load when every reported issue
+is informational, so a Seamless Co-op character loads without interruption.
 
 ### feat(items): set the obtained flag when adding the Flask of Wondrous Physick
 
