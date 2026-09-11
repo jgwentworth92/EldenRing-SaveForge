@@ -15,6 +15,17 @@ goes through the existing repair apply path; the first row is never touched.
 Inventory and storage remain separate containers, so an item present in both
 is still not an issue.
 
+### feat(repair): recognise Seamless Co-op items
+
+Goods rows added by the Seamless Co-op mod (EquipParamGoods 8380001+, e.g.
+Tiny Great Pot, Effigy of Malenia, Challenger's Lynchpin, Separation Mist,
+Judicator's Rulebook, Rune Decanter) are now reported as informational
+`seamless_coop_item` issues with their names instead of `unknown_item_id`
+errors. Their default action is No action; Remove record stays available for
+a deliberate clean-up. The zero-quantity key-item rows the mod uses to store
+some of its items are no longer flagged as `quantity_zero`, so a "repair all
+defaults" pass can no longer strip the mod's items by accident.
+
 ### feat(items): set the obtained flag when adding the Flask of Wondrous Physick
 
 Adding the Flask of Wondrous Physick now also sets event flag 60020, the

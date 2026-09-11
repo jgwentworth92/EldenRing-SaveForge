@@ -126,6 +126,7 @@ func repairActionsForCode(code string) ([]RepairIssueAction, string) {
 		core.RepairCodePassThroughRecords:        {[]string{core.RepairActionNoAction}, core.RepairActionNoAction},
 		core.RepairCodeDuplicateAcquisitionIndex: {[]string{core.RepairActionRepairIndex, RepairActionLeaveUnchanged}, core.RepairActionRepairIndex},
 		core.RepairCodeDuplicateGoodsRow:         {[]string{core.RepairActionRemoveRecord, RepairActionLeaveUnchanged}, core.RepairActionRemoveRecord},
+		core.RepairCodeSeamlessCoopItem:          {[]string{core.RepairActionNoAction, core.RepairActionRemoveRecord}, core.RepairActionNoAction},
 		core.RepairCodeCurrentAoWMissing:         {[]string{core.RepairActionClearAoW, core.RepairActionPickAoW, RepairActionLeaveUnchanged}, core.RepairActionClearAoW},
 		core.RepairCodeCurrentAoWShared:          {[]string{core.RepairActionCreateCopy, core.RepairActionClearAoW, RepairActionLeaveUnchanged}, core.RepairActionCreateCopy},
 		core.RepairCodeCurrentAoWNonAoWCategory:  {[]string{core.RepairActionClearAoW, RepairActionLeaveUnchanged}, core.RepairActionClearAoW},

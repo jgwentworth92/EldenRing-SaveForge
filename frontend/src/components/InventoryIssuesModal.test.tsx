@@ -273,6 +273,26 @@ describe('InventoryIssuesModal', () => {
         expect(screen.getByRole('button', { name: /Repair selected \(1\)/i })).toBeInTheDocument();
     });
 
+    it('labels seamless_coop_item and leaves it unselected by default', () => {
+        renderModal([
+            issue({
+                issueID: 'issue-seamless_coop_item-0',
+                key: { code: 'seamless_coop_item', row: 0, handle: 0xB07FDE61 },
+                description: 'Seamless Co-op item Tiny Great Pot (0x407FDE61)',
+                severity: 'info',
+                actions: [
+                    { id: 'no_action', label: 'No action' },
+                    { id: 'remove_record', label: 'Remove record' },
+                ],
+                defaultAction: 'no_action',
+            }),
+        ]);
+        expect(screen.getByText('Seamless Co-op item')).toBeInTheDocument();
+        const select = screen.getByLabelText('Repair action') as HTMLSelectElement;
+        expect(select.value).toBe('no_action');
+        expect(screen.queryByRole('button', { name: /Repair selected \(1\)/i })).not.toBeInTheDocument();
+    });
+
     it('labels quantity_above_max readably', () => {
         renderModal([
             issue({

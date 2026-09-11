@@ -65,6 +65,14 @@ const (
 	// the first row is never touched. Cross-container repeats (inventory +
 	// storage) are the normal transfer state and are not reported.
 	RepairCodeDuplicateGoodsRow = "duplicate_goods_row"
+	// RepairCodeSeamlessCoopItem marks a goods row added by the Seamless Co-op
+	// mod (data.IsSeamlessCoopItemID). The vanilla DB cannot resolve it, but it
+	// is not a defect — the mod's regulation defines it — so it is reported as
+	// INFO with no_action as default instead of unknown_item_id. remove_record
+	// stays available for a deliberate "strip the mod" pass. The mod keeps some
+	// of its items as zero-quantity KeyItems rows; those are its normal storage
+	// form and are exempt from quantity_zero.
+	RepairCodeSeamlessCoopItem = "seamless_coop_item"
 )
 
 // Repair action identifiers — proposed by the scanner, executed by the apply endpoint.
@@ -396,6 +404,22 @@ func scanInventoryRepairIssues(slotIndex int, records []ResolvedRecord) ([]Repai
 					[]string{RepairActionNoAction},
 					RepairActionNoAction, r.Fingerprint))
 			default: // UnknownReasonMissingDBEntry
+				if name, isMod := data.SeamlessCoopItemName(r.ItemID); isMod {
+					// Seamless Co-op mod row: defined by the mod's own regulation,
+					// not a defect. Informational; remove_record is offered for a
+					// deliberate strip-the-mod pass only.
+					key := IssueKey{Slot: slotIndex, Domain: repairDomainInventory, Code: RepairCodeSeamlessCoopItem,
+						Scope: r.Scope, Row: r.Row, Handle: h}
+					desc := fmt.Sprintf("Seamless Co-op item %s (0x%08X)", name, r.ItemID)
+					if r.Quantity&0x7FFFFFFF == 0 {
+						desc += ", stored by the mod with quantity 0"
+					}
+					out = append(out, mkIssue(key, desc,
+						repairSeverityInfo,
+						[]string{RepairActionNoAction, RepairActionRemoveRecord},
+						RepairActionNoAction, r.Fingerprint))
+					break
+				}
 				key := IssueKey{Slot: slotIndex, Domain: repairDomainInventory, Code: RepairCodeUnknownItemID,
 					Scope: r.Scope, Row: r.Row, Handle: h}
 				out = append(out, mkIssue(key,
@@ -459,7 +483,10 @@ func scanInventoryRepairIssues(slotIndex int, records []ResolvedRecord) ([]Repai
 			}
 		}
 
-		if r.Quantity&0x7FFFFFFF == 0 {
+		// Zero quantity is a defect for vanilla rows. Seamless Co-op keeps some of
+		// its items as zero-quantity KeyItems rows on purpose (reported above as
+		// seamless_coop_item), so those are exempt here.
+		if r.Quantity&0x7FFFFFFF == 0 && !data.IsSeamlessCoopItemID(r.ItemID) {
 			key := IssueKey{Slot: slotIndex, Domain: repairDomainInventory, Code: RepairCodeQuantityZero,
 				Scope: r.Scope, Row: r.Row, Handle: h}
 			out = append(out, mkIssue(key,
