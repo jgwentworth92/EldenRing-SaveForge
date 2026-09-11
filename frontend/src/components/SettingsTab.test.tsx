@@ -36,6 +36,11 @@ vi.mock('../../wailsjs/go/main/App', () => ({
     ExportDiagnosticLog: vi.fn(),
 }));
 
+// The Save Health panel has its own suite; stub it so this one stays about Settings.
+vi.mock('./SaveHealthPanel', () => ({
+    SaveHealthPanel: () => <div data-testid="save-health-panel" />,
+}));
+
 // Stub the modal to a marker so we can assert it opened with the scan report.
 // It also exposes the threaded duplicate-repair callback for one test.
 vi.mock('./InventoryIssuesModal', () => ({

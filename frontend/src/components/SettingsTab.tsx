@@ -17,6 +17,7 @@ import {InventoryIssuesModal} from './InventoryIssuesModal';
 import {SaveManagerModal} from './SaveManagerModal';
 import {ChaosWarningModal} from './ChaosWarningModal';
 import {scanRepairIssuesLoaded, type RepairIssueReport} from '../lib/repairIssues';
+import {SaveHealthPanel} from './SaveHealthPanel';
 
 interface SettingsTabProps {
     theme: 'light' | 'dark' | 'golden';
@@ -532,6 +533,17 @@ export function SettingsTab({
             </section>
 
             {/* Tools */}
+            <section className="space-y-3">
+                <div className={sectionHdr}><div className={dot} /><h2 className={hdrText}>Save Health</h2></div>
+                <SaveHealthPanel
+                    charIndex={charIndex}
+                    platform={platform}
+                    saveLoadKey={saveLoadKey}
+                    onOpenIssues={report => setInventoryIssuesModal({ reports: [report] })}
+                    onMutate={onMutate}
+                />
+            </section>
+
             <section className="space-y-3">
                 <div className={sectionHdr}><div className={dot} /><h2 className={hdrText}>Tools</h2></div>
                 <div className="card px-4 py-3">

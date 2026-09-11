@@ -15,6 +15,17 @@ goes through the existing repair apply path; the first row is never touched.
 Inventory and storage remain separate containers, so an item present in both
 is still not an issue.
 
+### feat(tools): Save Health panel
+
+The Tools tab gains a Save Health section that runs the inventory integrity
+gate, the corruption diagnostics and the Repair Issues scan for the selected
+character in one pass and shows the result per check. It offers one-click
+fixes for the cases that need no row picking: repair integrity, repair all
+loaded slots, fix duplicate goods rows, and remove every Seamless Co-op item
+(behind an inline confirmation). Everything else opens the Inventory Issues
+modal with the same report. All actions go through the existing repair apply
+path, so undo and the diagnostics journal cover them.
+
 ### feat(repair): recognise Seamless Co-op items
 
 Goods rows added by the Seamless Co-op mod (EquipParamGoods 8380001+, e.g.
