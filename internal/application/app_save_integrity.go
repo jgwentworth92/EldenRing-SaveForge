@@ -5,6 +5,7 @@ import (
 
 	"github.com/oisis/EldenRing-SaveForge/backend/core"
 	"github.com/oisis/EldenRing-SaveForge/backend/db"
+	"github.com/oisis/EldenRing-SaveForge/backend/db/data"
 )
 
 // SaveInventoryIntegrityReport describes the outcome of a read-only scan of
@@ -190,6 +191,12 @@ func resolveConflictItem(scope string, row int, item core.InventoryItem, slot *c
 
 	if itemData.Name == "" {
 		result.Unknown = true
+		// Seamless Co-op mod rows are unknown to the vanilla DB but have a
+		// published name; show it rather than an empty label next to a hex ID.
+		if name, isMod := data.SeamlessCoopItemName(itemID); isMod {
+			result.Name = name
+			result.Category = "seamless_coop"
+		}
 		return result
 	}
 

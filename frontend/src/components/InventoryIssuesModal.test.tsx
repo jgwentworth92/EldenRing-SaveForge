@@ -253,6 +253,46 @@ describe('InventoryIssuesModal', () => {
         expect(screen.queryByLabelText('Repair action')).not.toBeInTheDocument();
     });
 
+    it('labels duplicate_goods_row readably and defaults to remove_record', () => {
+        renderModal([
+            issue({
+                issueID: 'issue-duplicate_goods_row-3',
+                key: { code: 'duplicate_goods_row', row: 3, handle: 0xB07FDE61 },
+                description: 'goods handle 0xB07FDE61 occupies row 0 and row 3 of inventory_common',
+                severity: 'warning',
+                actions: [
+                    { id: 'remove_record', label: 'Remove record' },
+                    { id: 'leave_unchanged', label: 'Leave unchanged' },
+                ],
+                defaultAction: 'remove_record',
+            }),
+        ]);
+        expect(screen.getByText('Duplicate goods row')).toBeInTheDocument();
+        const select = screen.getByLabelText('Repair action') as HTMLSelectElement;
+        expect(select.value).toBe('remove_record');
+        expect(screen.getByRole('button', { name: /Repair selected \(1\)/i })).toBeInTheDocument();
+    });
+
+    it('labels seamless_coop_item and leaves it unselected by default', () => {
+        renderModal([
+            issue({
+                issueID: 'issue-seamless_coop_item-0',
+                key: { code: 'seamless_coop_item', row: 0, handle: 0xB07FDE61 },
+                description: 'Seamless Co-op item Tiny Great Pot (0x407FDE61)',
+                severity: 'info',
+                actions: [
+                    { id: 'no_action', label: 'No action' },
+                    { id: 'remove_record', label: 'Remove record' },
+                ],
+                defaultAction: 'no_action',
+            }),
+        ]);
+        expect(screen.getByText('Seamless Co-op item')).toBeInTheDocument();
+        const select = screen.getByLabelText('Repair action') as HTMLSelectElement;
+        expect(select.value).toBe('no_action');
+        expect(screen.queryByRole('button', { name: /Repair selected \(1\)/i })).not.toBeInTheDocument();
+    });
+
     it('labels quantity_above_max readably', () => {
         renderModal([
             issue({

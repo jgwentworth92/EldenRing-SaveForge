@@ -22,10 +22,13 @@ export function scanRepairIssuesLoaded(charIdx: number): Promise<RepairIssueRepo
 }
 
 // shouldAutoOpenOnLoad is the single source of the automatic on-load rule: the
-// issues modal opens automatically only when a scan found issues. Manual scans
-// (DiagnosticsModal) open it regardless, to surface validation coverage.
+// issues modal opens automatically only when a scan found something worth
+// acting on — at least one issue above "info" severity. Purely informational
+// rows (e.g. Seamless Co-op mod items, which every co-op character carries)
+// never interrupt a load. Manual scans (DiagnosticsModal) open it regardless,
+// to surface validation coverage.
 export function shouldAutoOpenOnLoad(report: RepairIssueReport): boolean {
-    return report.hasIssues;
+    return report.hasIssues && report.issues.some(issue => issue.severity !== 'info');
 }
 
 export function applyRepairsLoaded(charIdx: number, targets: RepairApplyTarget[], stopOnFirstFailure: boolean): Promise<RepairApplyReport> {

@@ -2,7 +2,57 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+## [1.8.0] - 2026-09-11
+
+### feat(repair): detect duplicate goods rows
+
+Repair Issues now reports `duplicate_goods_row` when one goods item occupies
+two or more rows of the same container (inventory or storage). The game shows
+such rows as separate stacks, but the Rust ER-Save-Editor refuses the whole
+save as "irregular data"; Seamless Co-op saves whose mod items were re-granted
+hit this in practice. Every row after the first defaults to Remove record and
+goes through the existing repair apply path; the first row is never touched.
+Inventory and storage remain separate containers, so an item present in both
+is still not an issue.
+
+### feat(tools): Save Health panel
+
+The Tools tab gains a Save Health section that runs the inventory integrity
+gate, the corruption diagnostics and the Repair Issues scan for the selected
+character in one pass and shows the result per check. It offers one-click
+fixes for the cases that need no row picking: repair integrity, repair all
+loaded slots, fix duplicate goods rows, and remove every Seamless Co-op item
+(behind an inline confirmation). Everything else opens the Inventory Issues
+modal with the same report. All actions go through the existing repair apply
+path, so undo and the diagnostics journal cover them.
+
+### feat(repair): recognise Seamless Co-op items
+
+Goods rows added by the Seamless Co-op mod (EquipParamGoods 8380001+, e.g.
+Tiny Great Pot, Effigy of Malenia, Challenger's Lynchpin, Separation Mist,
+Judicator's Rulebook, Rune Decanter) are now reported as informational
+`seamless_coop_item` issues with their names instead of `unknown_item_id`
+errors. Their default action is No action; Remove record stays available for
+a deliberate clean-up. The zero-quantity key-item rows the mod uses to store
+some of its items are no longer flagged as `quantity_zero`, so a "repair all
+defaults" pass can no longer strip the mod's items by accident. The Inventory
+Issues modal no longer opens automatically on load when every reported issue
+is informational, so a Seamless Co-op character loads without interruption.
+
+### feat(items): set the obtained flag when adding the Flask of Wondrous Physick
+
+Adding the Flask of Wondrous Physick now also sets event flag 60020, the
+"obtained flask" state that enables Mix Wondrous Physick at a site of grace.
+Verified against a save where the character who collected the flask normally
+has the flag and one who never did does not.
+
+### feat(cli): headless physick-cli
+
+New `cmd/physick-cli` command built from the application backend: lists the
+characters in a PC or Seamless Co-op save with flask, flag and duplicate-row
+state, adds the flask and flag to one character, or removes duplicated goods
+rows. Writes a new file next to the input (or in place after a timestamped
+backup) and verifies by reloading it.
 
 ### fix(inventory): exclude Perfumed Oil of Ranah from Perfume Bottle capacity
 
