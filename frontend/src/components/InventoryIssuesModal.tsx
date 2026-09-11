@@ -50,6 +50,7 @@ function codeLabel(code: string): string {
         case 'container_overuse': return 'Container over capacity';
         case 'pass_through_records': return 'Pass-through records';
         case 'duplicate_acquisition_index': return 'Duplicate acquisition index';
+        case 'duplicate_goods_row': return 'Duplicate goods row';
         case 'current_aow_missing': return 'Current AoW missing';
         case 'current_aow_shared': return 'Shared current AoW';
         case 'current_aow_non_aow_category': return 'Current AoW category mismatch';

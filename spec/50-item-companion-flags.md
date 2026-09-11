@@ -81,6 +81,8 @@ The **SET/CLEAR symmetry** is, however, limited — see §9.
 | `ItemSmallRedEffigy` | `0x4000006E` | 1 |
 | `ItemWhiteCipherRing` | `0x40000068` | 1 |
 | `ItemBlueCipherRing` | `0x40000069` | 1 |
+| `ItemFlaskWondrousPhysick` | `0x400000FB` | 1 (`60020` obtained flask — gates Mix Wondrous Physick at a grace) |
+| `ItemFlaskWondrousPhysickFilledRaw` | `0x400000FA` | 1 (same flag; raw filled variant so a lookup by raw itemID resolves) |
 
 All item IDs and flag IDs are declared as `const` constants in the same file — there are no hardcoded literals in the map. This allows **sharing constants** with other modules (e.g., `EventFlagObtainedSpectralSteedWhistle` is also used by `grace_companion_flags.go` for Gatefront — see [47-site-of-grace-activation.md](47-site-of-grace-activation.md) §8).
 

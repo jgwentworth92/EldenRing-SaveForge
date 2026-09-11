@@ -54,6 +54,17 @@ const (
 	// REPORT-ONLY — no safe generic auto-repair exists (which ItemID to retain is
 	// the user's call), so its only action is no_action.
 	RepairCodeDuplicatePhysicalHandle = "duplicate_physical_gaitem_handle"
+	// RepairCodeDuplicateGoodsRow flags a goods (0xB0) handle that occupies
+	// two or more rows of the SAME container (inventory common, inventory
+	// key, or storage common). The game tolerates this — it shows two stacks —
+	// which is why RepairCodeDuplicateHandle deliberately exempts handle-
+	// encoded items. But the Rust ER-Save-Editor's validator refuses any save
+	// with such a row ("Save file has irregular data!"), and Seamless Co-op
+	// saves whose mod items were re-granted hit it in practice. Every row
+	// after the first is reported (warning) with remove_record as the default;
+	// the first row is never touched. Cross-container repeats (inventory +
+	// storage) are the normal transfer state and are not reported.
+	RepairCodeDuplicateGoodsRow = "duplicate_goods_row"
 )
 
 // Repair action identifiers — proposed by the scanner, executed by the apply endpoint.
@@ -349,6 +360,7 @@ func containerUsedQuantities(records []ResolvedRecord) map[uint32]uint64 {
 func scanInventoryRepairIssues(slotIndex int, records []ResolvedRecord) ([]RepairIssue, int, int) {
 	var out []RepairIssue
 	seenHandles := make(map[uint32]bool)
+	seenGoodsRows := make(map[string]map[uint32]int) // scope -> goods handle -> first row
 	var acquisitionIndices []uint32
 	for _, record := range records {
 		if record.IndexDedup && record.AcquisitionIndex > 0 {
@@ -420,6 +432,31 @@ func scanInventoryRepairIssues(slotIndex int, records []ResolvedRecord) ([]Repai
 					RepairActionCreateCopy, r.Fingerprint))
 			}
 			seenHandles[h] = true
+		}
+
+		// Duplicate goods row — the same 0xB0 handle in two rows of ONE
+		// container. Keyed on the handle prefix alone (not DB resolution) so an
+		// unknown mod item is covered too, which is the case seen in the wild.
+		// The first row is the keeper and is never reported; cross-container
+		// repeats are the normal inventory<->storage transfer state.
+		if r.HandleType == ItemTypeItem {
+			rows := seenGoodsRows[r.Scope]
+			if rows == nil {
+				rows = make(map[uint32]int)
+				seenGoodsRows[r.Scope] = rows
+			}
+			if first, dup := rows[h]; dup {
+				key := IssueKey{Slot: slotIndex, Domain: repairDomainInventory, Code: RepairCodeDuplicateGoodsRow,
+					Scope: r.Scope, Row: r.Row, Handle: h}
+				out = append(out, mkIssue(key,
+					fmt.Sprintf("goods handle 0x%08X occupies row %d and row %d of %s; the game shows two stacks, other editors reject the save",
+						h, first, r.Row, r.Scope),
+					repairSeverityWarning,
+					[]string{RepairActionRemoveRecord},
+					RepairActionRemoveRecord, r.Fingerprint))
+			} else {
+				rows[h] = r.Row
+			}
 		}
 
 		if r.Quantity&0x7FFFFFFF == 0 {

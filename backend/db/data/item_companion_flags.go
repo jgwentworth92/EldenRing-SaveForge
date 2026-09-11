@@ -36,11 +36,30 @@ var itemCompanionEventFlags = map[uint32][]uint32{
 	ItemSmallRedEffigy:       {EventFlagObtainedSmallRedEffigy},
 	ItemWhiteCipherRing:      {EventFlagObtainedWhiteCipherRing},
 	ItemBlueCipherRing:       {EventFlagObtainedBlueCipherRing},
+
+	// Flask of Wondrous Physick — "obtained flask" state. Without this flag
+	// the flask sits in inventory but the "Mix Wondrous Physick" entry never
+	// appears at a site of grace. Both raw save-state variants map here; the
+	// add path normalises to the empty variant, the filled one is listed so a
+	// direct lookup by raw itemID also resolves.
+	//
+	// Verified 2026-09-10 on a PC Seamless Co-op save: the character who
+	// picked the flask up at the Third Church of Marika has 60020 set, the
+	// character who never did has it clear. Flag name from the soulsmodding.com
+	// event flag list ("60020 — Obtained Flask of Wondrous Physick").
+	ItemFlaskWondrousPhysick:          {EventFlagObtainedWondrousPhysick},
+	ItemFlaskWondrousPhysickFilledRaw: {EventFlagObtainedWondrousPhysick},
 }
 
 // Item IDs with companion flags.
 const (
 	ItemSpectralSteedWhistle = uint32(0x40000082)
+
+	// Flask of Wondrous Physick. The DB row is the empty variant; the filled
+	// variant is the raw itemID the game writes once the flask is refilled
+	// (see db.ItemFlaskWondrousPhysickFilled).
+	ItemFlaskWondrousPhysick          = uint32(0x400000FB)
+	ItemFlaskWondrousPhysickFilledRaw = uint32(0x400000FA)
 
 	// Multiplayer pickup items (tools, SubcatToolsMultiplayer).
 	ItemSmallGoldenEffigy    = uint32(0x4000006D)
@@ -55,6 +74,11 @@ const (
 	// EventFlagObtainedSpectralSteedWhistle unlocks Torrent. Without this flag
 	// the game refuses to summon Torrent even when the whistle is in inventory.
 	EventFlagObtainedSpectralSteedWhistle = uint32(60100)
+
+	// EventFlagObtainedWondrousPhysick marks the Flask of Wondrous Physick as
+	// obtained; it gates the "Mix Wondrous Physick" site-of-grace menu. Sits in
+	// the same 600xx "obtained flask" range as 60000 (Crimson/Cerulean).
+	EventFlagObtainedWondrousPhysick = uint32(60020)
 
 	// EventFlagMelinaGaveWhistle marks the Melina quest-give step as complete.
 	// Prevents the "accept Torrent?" dialogue from re-triggering at graces.
